@@ -6,7 +6,7 @@ __contributors__ = []
 __license__ = "AGPLv3"
 __version__ = "0.1"
 """
-    Vavag python client>
+    Vavag python client
     Copyright (C) 2011  Javier Cordero Martinez
 
     This program is free software: you can redistribute it and/or modify
@@ -107,5 +107,4 @@ class VavagRequest(Http):
         json = simplejson.loads(content)
         if json['status'] == 200:
             return json['results']
-        return json['statusMsg']
         raise VavagException(status=json['status'], msg=json['statusMsg'])
