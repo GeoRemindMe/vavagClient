@@ -1,0 +1,7 @@
+Python client for the URL shortener Vavag.com
+
+Licensed under GNU AFFERO GPL v. 3
+
+This version only supports JSON response.
+
+www.georemindme.com

@@ -1,6 +1,28 @@
 # coding=utf-8
 
+__author__ = "Javier Cordero Martínez (javier@georemindme.com)"
+__copyright__ = "Copyright 2011"
+__contributors__ = []
+__license__ = "AGPLv3"
+__version__ = "0.1"
+"""
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+
 from libs.httplib2 import Http
+
 
 class VavagException(Exception):
     status = None
@@ -11,7 +33,7 @@ class VavagException(Exception):
         self.msg = msg
 
 class VavagRequest(Http):
-    headers = { 'User-Agent' : 'Georemindme:0.1' }
+    headers = { 'User-Agent' : 'Vavag python: %s' % __version__ }
     URL_get_info_url = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/get_info_url?url='
     URL_get_pack = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/get_pack?packhash='
     URL_set_pack = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/set_pack?packchain='
@@ -24,9 +46,12 @@ class VavagRequest(Http):
         self.method = method
 
     def _encode(self, url):
-        from base64 import urlsafe_b64encode
-        return url
-        return urlsafe_b64encode(url)
+        from urllib import quote
+        if not 'http://' in url and not 'https://' in url:
+            url = 'http://' + url
+        return quote(url)
+        #from base64 import urlsafe_b64encode
+        #return urlsafe_b64encode(url)
     
     def get_info(self, url):
         request_url = self.URL_get_info_url % {
@@ -36,7 +61,6 @@ class VavagRequest(Http):
                                        'apikey': self.api_key
                                        }
         request_url = request_url + self._encode(url)
-        print request_url
         return self._do_request(request_url)
     
     def get_pack(self, packHash):
@@ -71,7 +95,7 @@ class VavagRequest(Http):
                 :type url: string
                 
                 :returns: diccionario con el resultado
-                :raises: :class:`GPAPIError`
+                :raises: :class:`VavagException`
         """
         response, content = self.request(url, method=method, body=body, headers=self.headers)
         if response['status'] != 200:
