@@ -25,7 +25,7 @@ __version__ = "0.1"
 
 
 from libs.httplib2 import Http
-
+# http://vavag.com/help/api/v2
 
 class VavagException(Exception):
     status = None
@@ -77,8 +77,7 @@ class VavagRequest(Http):
         return self._do_request(request_url)
     
     def set_pack(self, pack):
-        if type(pack) != 'list':
-            pack = list(pack)
+        
         request_url = self.URL_set_pack % {
                                        'version': self.version,
                                        'method': self.method,
@@ -86,18 +85,21 @@ class VavagRequest(Http):
                                        'apikey': self.api_key
                                        }
         
-        pack = '|'.join([self._encode(url) for url in pack])
-        request_url = request_url + pack
+        if type(pack) != type(list()):
+            type_param = 2
+        else:
+            type_param = 1
+            pack = '|sep|'.join([self._encode(url) for url in pack])
+        request_url = request_url + pack + '&type=%s' % type_param
         return self._do_request(request_url)
     
     def _do_request(self, url, method='GET', body=None):
         """
-            Realiza una peticion por GET a la direccion recibida
+            Does a request:
             
-                :param url: direccion url a donde hacer la peticion
+                :param url: url to request
                 :type url: string
-                
-                :returns: diccionario con el resultado
+                :returns: dict with the results from vavag.com
                 :raises: :class:`VavagException`
         """
         response, content = self.request(url, method=method, body=body, headers=self.headers)
