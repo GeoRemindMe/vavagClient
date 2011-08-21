@@ -27,6 +27,7 @@ __version__ = "0.1"
 from libs.httplib2 import Http
 # http://vavag.com/help/api/v2
 
+
 class VavagException(Exception):
     status = None
     msg = None
@@ -34,6 +35,7 @@ class VavagException(Exception):
         super(self.__class__, self).__init__()
         self.status = status
         self.msg = msg
+
 
 class VavagRequest(Http):
     headers = { 'User-Agent' : 'Vavag python: %s' % __version__ }
@@ -77,7 +79,9 @@ class VavagRequest(Http):
         return self._do_request(request_url)
     
     def set_pack(self, pack):
-        
+        """
+            Creates a new pack of urls
+        """
         request_url = self.URL_set_pack % {
                                        'version': self.version,
                                        'method': self.method,
