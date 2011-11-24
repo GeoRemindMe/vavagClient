@@ -1,10 +1,4 @@
 # coding=utf-8
-
-__author__ = "Javier Cordero Martinez (javier@georemindme.com)"
-__copyright__ = "Copyright 2011"
-__contributors__ = []
-__license__ = "AGPLv3"
-__version__ = "0.1"
 """
     Vavag python client
     Copyright (C) 2011  Javier Cordero Martinez
@@ -24,6 +18,14 @@ __version__ = "0.1"
 """
 
 
+__author__ = "Javier Cordero Martinez (javier@georemindme.com)"
+__copyright__ = "Copyright 2011"
+__contributors__ = []
+__license__ = "AGPLv3"
+__version__ = "0.1"
+
+
+
 from libs.httplib2 import Http
 # http://vavag.com/help/api/v2
 
@@ -38,10 +40,12 @@ class VavagException(Exception):
 
 
 class VavagRequest(Http):
-    headers = { 'User-Agent' : 'Vavag python: %s' % __version__ }
     URL_get_info_url = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/get_info_url?url='
     URL_get_pack = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/get_pack?packhash='
-    URL_set_pack = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/set_pack?packchain='
+    URL_set_pack = 'http://vavag.com/api/%(version)s/%(method)s/%(login)s/%(apikey)s/set_pack?'
+    
+    headers = { 'User-Agent' : 'GeoRemindMe Vavag: %s' % __version__ }
+
     
     def __init__(self, login, api_key, version='v2', method = 'json', **kwargs):
         super(self.__class__, self).__init__(timeout=20, **kwargs)
@@ -83,18 +87,21 @@ class VavagRequest(Http):
             Creates a new pack of urls
         """
         request_url = self.URL_set_pack % {
-                                       'version': self.version,
-                                       'method': self.method,
-                                       'login': self.login,
-                                       'apikey': self.api_key
-                                       }
+                                           'version': self.version,
+                                           'method': self.method,
+                                           'login': self.login,
+                                           'apikey': self.api_key
+                                           }
         
         if type(pack) != type(list()):
             type_param = 2
         else:
             type_param = 1
             pack = '|sep|'.join([self._encode(url) for url in pack])
-        request_url = request_url + pack + '&type=%s' % type_param
+        import urllib
+        request_url = request_url + urllib.urlencode({'packchain': pack,
+                                                     'type': type_param
+                                                     })
         return self._do_request(request_url)
     
     def _do_request(self, url, method='GET', body=None):
@@ -109,8 +116,15 @@ class VavagRequest(Http):
         response, content = self.request(url, method=method, body=body, headers=self.headers)
         if response['status'] != 200:
             raise VavagException(status=response['status'], msg='ERROR IN REQUEST')
-        from django.utils import simplejson
+        try:
+            import json as simplejson
+        except:
+            from django.utils import simplejson        
         json = simplejson.loads(content)
         if json['status'] == 200:
             return json['results']
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error("ERROR EN VAVAG status: %s msg: %s" % (json['status'], json['statusMsg']))
+        
         raise VavagException(status=json['status'], msg=json['statusMsg'])
