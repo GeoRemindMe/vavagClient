@@ -26,7 +26,7 @@ __version__ = "0.1"
 
 
 
-from libs.httplib2 import Http
+from httplib2 import Http
 # http://vavag.com/help/api/v2
 
 
