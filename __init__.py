@@ -114,7 +114,7 @@ class VavagRequest(Http):
                 :raises: :class:`VavagException`
         """
         response, content = self.request(url, method=method, body=body, headers=self.headers)
-        if response['status'] != 200:
+        if int(response['status']) != 200:
             raise VavagException(status=response['status'], msg='ERROR IN REQUEST')
         try:
             import json as simplejson
