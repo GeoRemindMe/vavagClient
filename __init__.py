@@ -48,7 +48,7 @@ class VavagRequest(Http):
 
     
     def __init__(self, login, api_key, version='v2', method = 'json', **kwargs):
-        super(self.__class__, self).__init__(timeout=20, **kwargs)
+        super(self.__class__, self).__init__(timeout=3, **kwargs)
         self.version = version
         self.api_key = api_key
         self.login = login
@@ -113,7 +113,10 @@ class VavagRequest(Http):
                 :returns: dict with the results from vavag.com
                 :raises: :class:`VavagException`
         """
-        response, content = self.request(url, method=method, body=body, headers=self.headers)
+        try:
+            response, content = self.request(url, method=method, body=body, headers=self.headers)
+        except:
+            raise VavagException()
         if int(response['status']) != 200:
             raise VavagException(status=response['status'], msg='ERROR IN REQUEST')
         try:
